@@ -1,5 +1,6 @@
 import { firestore, Point, Feature } from './interfaces';
-
+import * as _firestore from "@google-cloud/firestore";
+import * as admin from "firebase-admin";
 import { neighbors, encode, flip } from './util';
 
 import distance from '@turf/distance';
@@ -11,7 +12,7 @@ export type Coordinates = [Latitude, Longitude];
 
 export class GeoFirePoint {
   constructor(
-    public app: firestore.FirebaseApp,
+    public app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App,
     public latitude: number,
     public longitude: number
   ) {}
@@ -64,10 +65,11 @@ export class GeoFirePoint {
    * @returns {firestore.GeoPoint} Firestore GeoPoint representation of the point
    */
   get geoPoint() {
-    return new (this.app as any).firestore.GeoPoint(
-      this.latitude,
-      this.longitude
-    ) as firestore.GeoPoint;
+    return new _firestore.GeoPoint(this.latitude, this.longitude);
+    // return new (this.app as any).firestore.GeoPoint(
+    //   this.latitude,
+    //   this.longitude
+    // ) as firestore.GeoPoint;
   }
 
   /**

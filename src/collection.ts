@@ -1,12 +1,13 @@
 import { firestore } from './interfaces';
-
+import * as admin from "firebase-admin";
+import * as _firestore from "@google-cloud/firestore";
 import { Observable, combineLatest } from 'rxjs';
-import { shareReplay, map, first } from 'rxjs/operators';
+import { shareReplay, map, first, distinct } from 'rxjs/operators';
 import { GeoFirePoint, Latitude, Longitude } from './point';
 import { setPrecsion } from './util';
 import { FeatureCollection, Geometry } from 'geojson';
 
-export type QueryFn = (ref: firestore.CollectionReference) => firestore.Query;
+export type QueryFn = (ref: firestore.CollectionReference | _firestore.CollectionReference) => firestore.Query;
 
 export interface GeoQueryOptions {
   units: 'km';
@@ -24,19 +25,46 @@ export interface GeoQueryDocument {
 }
 
 export class GeoFireCollectionRef {
-  private ref: firestore.CollectionReference;
+  private app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App
   private query: firestore.Query;
   private stream: Observable<firestore.QuerySnapshot>;
 
   constructor(
-    private app: firestore.FirebaseApp,
+    app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App,
+    private ref: firestore.CollectionReference | _firestore.CollectionReference,
     private path: string,
     query?: QueryFn
   ) {
-    this.ref = app.firestore().collection(path);
     if (query) this.query = query(this.ref);
     this.setStream();
   }
+  
+  static fromFirebaseApp(
+    app: firestore.FirebaseApp | admin.app.App,
+    path: string,
+    query?: QueryFn
+  ) {
+    return new GeoFireCollectionRef(
+      app,
+      app.firestore().collection(path),
+      path,
+      query
+    );
+  }
+
+  static fromFireStore(
+    app: _firestore.Firestore,
+    path: string,
+    query?: QueryFn
+  ) {
+    return new GeoFireCollectionRef(
+      app,
+      app.collection(path),
+      path,
+      query
+    );
+  }
+
   /**
    * Return the QuerySnapshot as an observable
    * @returns {Observable<firestore.QuerySnapshot>}
@@ -58,7 +86,8 @@ export class GeoFireCollectionRef {
    * @returns {Promise<firestore.DocumentReference>}
    */
   add(data: any): Promise<firestore.DocumentReference> {
-    return this.ref.add(data);
+      return (this.ref as firestore.CollectionReference).add(data);
+      // return this.ref.add(data);
   }
   /**
    * Delete a document in the collection based on the document ID
@@ -102,7 +131,7 @@ export class GeoFireCollectionRef {
   }
 
   private setStream() {
-    this.query = this.query || this.ref;
+    this.query = this.query || this.ref as firestore.CollectionReference;
     this.stream = createStream(this.query || this.ref).pipe(shareReplay(1));
   }
 
@@ -127,7 +156,7 @@ export class GeoFireCollectionRef {
 
     const queries = area.map(hash => {
       const query = this.queryPoint(hash, field);
-      return createStream(query).pipe(snapToData());
+      return createStream(query).pipe(distinct(v => (v.id ? v.id : null)), snapToData());
     });
 
     const combo = combineLatest(...queries).pipe(

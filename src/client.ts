@@ -1,10 +1,11 @@
 import { firestore } from './interfaces';
-
+import * as admin from "firebase-admin";
+import * as _firestore from "@google-cloud/firestore";
 import { GeoFireCollectionRef, QueryFn, get } from './collection';
 import { GeoFirePoint } from './point';
 
 export class GeoFireClient {
-  constructor(private app: firestore.FirebaseApp) {}
+  constructor(private app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App) {}
   /**
    * Creates reference to a Firestore collection that can be used to make geo-queries and perform writes
    * If you pass a query, any subsequent geo-queries will be limited to this subset of documents
@@ -13,7 +14,11 @@ export class GeoFireClient {
    * @returns {GeoFireCollectionRef}
    */
   collection(path: string, query?: QueryFn): GeoFireCollectionRef {
-    return new GeoFireCollectionRef(this.app, path, query);
+    return GeoFireCollectionRef.fromFirebaseApp(this.app as firestore.FirebaseApp, path, query);
+  }
+
+  collectionFromFirestore(path: string, query?: QueryFn): GeoFireCollectionRef {
+    return GeoFireCollectionRef.fromFireStore(this.app as  _firestore.Firestore, path, query);
   }
   /**
    * A GeoFirePoint allows you to create geohashes, format data, and calculate relative distance/bearing.
@@ -30,6 +35,6 @@ export class GeoFireClient {
  * @param  {firestore.FirebaseApp} app
  * @returns GeoFireClient
  */
-export function init(app: firestore.FirebaseApp): GeoFireClient {
+export function init(app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App): GeoFireClient {
   return new GeoFireClient(app);
 }
