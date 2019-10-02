@@ -198,7 +198,9 @@ internal, do not use
  */
 function createStream(input): Observable<any> {
   return new Observable(observer => {
-    const unsubscribe = input.onSnapshot(observer);
+    // Original problematic code:
+    // const unsubscribe = input.onSnapshot(observer);
+    const unsubscribe = input.onSnapshot((val) => observer.next(val), err => observer.error(err));
     return { unsubscribe };
   });
 }
