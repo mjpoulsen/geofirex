@@ -1,5 +1,5 @@
 node_modules/
 .rpt2_cache/
-dist/
+# dist/
 coverage/
 dochtml/
