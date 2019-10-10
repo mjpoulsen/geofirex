@@ -1,10 +1,10 @@
 import { firestore } from './interfaces';
-
+import * as _firestore from "@google-cloud/firestore";
 import { GeoFireCollectionRef, QueryFn, get } from './collection';
 import { GeoFirePoint } from './point';
 
 export class GeoFireClient {
-  constructor(private app: firestore.FirebaseApp) {}
+  constructor(private app: firestore.FirebaseApp | _firestore.Firestore) {}
   /**
    * Creates reference to a Firestore collection that can be used to make geo-queries and perform writes
    * If you pass a query, any subsequent geo-queries will be limited to this subset of documents
@@ -30,6 +30,6 @@ export class GeoFireClient {
  * @param  {firestore.FirebaseApp} app
  * @returns GeoFireClient
  */
-export function init(app: firestore.FirebaseApp): GeoFireClient {
+export function init(app: firestore.FirebaseApp | _firestore.Firestore): GeoFireClient {
   return new GeoFireClient(app);
 }

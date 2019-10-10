@@ -1,12 +1,14 @@
 import { firestore } from './interfaces';
-
+import * as _firestore from "@google-cloud/firestore";
 import { Observable, combineLatest } from 'rxjs';
 import { shareReplay, map, first } from 'rxjs/operators';
 import { GeoFirePoint, Latitude, Longitude } from './point';
 import { setPrecsion } from './util';
 import { FeatureCollection, Geometry } from 'geojson';
+import { FirebaseApp } from '@firebase/app-types';
+import { CollectionReference } from '@firebase/firestore-types';
 
-export type QueryFn = (ref: firestore.CollectionReference) => firestore.Query;
+export type QueryFn = (ref: firestore.CollectionReference | _firestore.CollectionReference) => firestore.Query;
 
 export interface GeoQueryOptions {
   units: 'km';
@@ -24,16 +26,23 @@ export interface GeoQueryDocument {
 }
 
 export class GeoFireCollectionRef {
-  private ref: firestore.CollectionReference;
+  private ref: firestore.CollectionReference | _firestore.CollectionReference;
   private query: firestore.Query;
   private stream: Observable<firestore.QuerySnapshot>;
 
   constructor(
-    private app: firestore.FirebaseApp,
+    private app: firestore.FirebaseApp | _firestore.Firestore,
     private path: string,
     query?: QueryFn
   ) {
-    this.ref = app.firestore().collection(path);
+    if (app instanceof FirebaseApp) {
+      const fbApp = app as firestore.FirebaseApp;
+      this.ref = fbApp.firestore().collection(path);
+    } else {
+      const _App = app as _firestore.Firestore;
+      this.ref = _App.collection(path);
+    }
+
     if (query) this.query = query(this.ref);
     this.setStream();
   }
@@ -58,7 +67,13 @@ export class GeoFireCollectionRef {
    * @returns {Promise<firestore.DocumentReference>}
    */
   add(data: any): Promise<firestore.DocumentReference> {
-    return this.ref.add(data);
+    if (this.ref instanceof CollectionReference) {
+      const fbApp = this.ref as CollectionReference;
+      return fbApp.add(data);
+    }
+
+    throw new Error("Add not supported by _firestore.CollectionReference");
+    // return this.ref.add(data);
   }
   /**
    * Delete a document in the collection based on the document ID
@@ -102,7 +117,7 @@ export class GeoFireCollectionRef {
   }
 
   private setStream() {
-    this.query = this.query || this.ref;
+    this.query = this.query || this.ref as CollectionReference;
     this.stream = createStream(this.query || this.ref).pipe(shareReplay(1));
   }
 
