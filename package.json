@@ -83,5 +83,8 @@
             "json",
             "node"
         ]
+    },
+    "dependencies": {
+        "@firebase/app-types": "^0.4.4"
     }
 }
