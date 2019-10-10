@@ -13,6 +13,7 @@ export declare class GeoFireClient {
      * @returns {GeoFireCollectionRef}
      */
     collection(path: string, query?: QueryFn): GeoFireCollectionRef;
+    collectionFromFirestore(path: string, query?: QueryFn): GeoFireCollectionRef;
     /**
      * A GeoFirePoint allows you to create geohashes, format data, and calculate relative distance/bearing.
      * @param  {number} latitude

@@ -4,7 +4,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var rxjs = require('rxjs');
 var operators = require('rxjs/operators');
-var appTypes = require('@firebase/app-types');
 var firestoreTypes = require('@firebase/firestore-types');
 
 function flip(arr) {
@@ -1461,21 +1460,19 @@ var __assign = Object.assign || function __assign(t) {
 
 var defaultOpts = { units: 'km' };
 var GeoFireCollectionRef = /** @class */ (function () {
-    function GeoFireCollectionRef(app, path, query) {
-        this.app = app;
+    function GeoFireCollectionRef(app, ref, path, query) {
+        this.ref = ref;
         this.path = path;
-        if (app instanceof appTypes.FirebaseApp) {
-            var fbApp = app;
-            this.ref = fbApp.firestore().collection(path);
-        }
-        else {
-            var _App = app;
-            this.ref = _App.collection(path);
-        }
         if (query)
             this.query = query(this.ref);
         this.setStream();
     }
+    GeoFireCollectionRef.fromFirebaseApp = function (app, path, query) {
+        return new GeoFireCollectionRef(app, app.firestore().collection(path), path, query);
+    };
+    GeoFireCollectionRef.fromFireStore = function (app, path, query) {
+        return new GeoFireCollectionRef(app, app.collection(path), path, query);
+    };
     /**
      * Return the QuerySnapshot as an observable
      * @returns {Observable<firestore.QuerySnapshot>}
@@ -1662,7 +1659,10 @@ var GeoFireClient = /** @class */ (function () {
      * @returns {GeoFireCollectionRef}
      */
     GeoFireClient.prototype.collection = function (path, query) {
-        return new GeoFireCollectionRef(this.app, path, query);
+        return GeoFireCollectionRef.fromFirebaseApp(this.app, path, query);
+    };
+    GeoFireClient.prototype.collectionFromFirestore = function (path, query) {
+        return GeoFireCollectionRef.fromFireStore(this.app, path, query);
     };
     /**
      * A GeoFirePoint allows you to create geohashes, format data, and calculate relative distance/bearing.

@@ -15,12 +15,14 @@ export interface GeoQueryDocument {
     queryMetadata: QueryMetadata;
 }
 export declare class GeoFireCollectionRef {
-    private app;
-    private path;
     private ref;
+    private path;
+    private app;
     private query;
     private stream;
-    constructor(app: firestore.FirebaseApp | _firestore.Firestore, path: string, query?: QueryFn);
+    constructor(app: firestore.FirebaseApp | _firestore.Firestore, ref: firestore.CollectionReference | _firestore.CollectionReference, path: string, query?: QueryFn);
+    static fromFirebaseApp(app: firestore.FirebaseApp, path: string, query?: QueryFn): GeoFireCollectionRef;
+    static fromFireStore(app: _firestore.Firestore, path: string, query?: QueryFn): GeoFireCollectionRef;
     /**
      * Return the QuerySnapshot as an observable
      * @returns {Observable<firestore.QuerySnapshot>}

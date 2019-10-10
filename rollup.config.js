@@ -10,7 +10,7 @@ const globals = {
     rxjs: 'rxjs',
     'rxjs/operators': 'rxjs.operators',
 }
-const external = ['firebase/app', 'rxjs', 'rxjs/operators']
+const external = ['firebase/app', 'rxjs', 'rxjs/operators', '@firebase/app-types', '@firebase/firestore-types']
 
 export default {
     input: './src/index.ts',

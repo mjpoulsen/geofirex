@@ -5,7 +5,6 @@ import { shareReplay, map, first } from 'rxjs/operators';
 import { GeoFirePoint, Latitude, Longitude } from './point';
 import { setPrecsion } from './util';
 import { FeatureCollection, Geometry } from 'geojson';
-import { FirebaseApp } from '@firebase/app-types';
 import { CollectionReference } from '@firebase/firestore-types';
 
 export type QueryFn = (ref: firestore.CollectionReference | _firestore.CollectionReference) => firestore.Query;
@@ -26,26 +25,46 @@ export interface GeoQueryDocument {
 }
 
 export class GeoFireCollectionRef {
-  private ref: firestore.CollectionReference | _firestore.CollectionReference;
+  private app: firestore.FirebaseApp | _firestore.Firestore
   private query: firestore.Query;
   private stream: Observable<firestore.QuerySnapshot>;
 
   constructor(
-    private app: firestore.FirebaseApp | _firestore.Firestore,
+    app: firestore.FirebaseApp | _firestore.Firestore,
+    private ref: firestore.CollectionReference | _firestore.CollectionReference,
     private path: string,
     query?: QueryFn
   ) {
-    if (app instanceof FirebaseApp) {
-      const fbApp = app as firestore.FirebaseApp;
-      this.ref = fbApp.firestore().collection(path);
-    } else {
-      const _App = app as _firestore.Firestore;
-      this.ref = _App.collection(path);
-    }
-
     if (query) this.query = query(this.ref);
     this.setStream();
   }
+  
+  static fromFirebaseApp(
+    app: firestore.FirebaseApp,
+    path: string,
+    query?: QueryFn
+  ) {
+    return new GeoFireCollectionRef(
+      app,
+      app.firestore().collection(path),
+      path,
+      query
+    );
+  }
+
+  static fromFireStore(
+    app: _firestore.Firestore,
+    path: string,
+    query?: QueryFn
+  ) {
+    return new GeoFireCollectionRef(
+      app,
+      app.collection(path),
+      path,
+      query
+    );
+  }
+
   /**
    * Return the QuerySnapshot as an observable
    * @returns {Observable<firestore.QuerySnapshot>}

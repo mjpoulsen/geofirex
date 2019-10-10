@@ -13,7 +13,11 @@ export class GeoFireClient {
    * @returns {GeoFireCollectionRef}
    */
   collection(path: string, query?: QueryFn): GeoFireCollectionRef {
-    return new GeoFireCollectionRef(this.app, path, query);
+    return GeoFireCollectionRef.fromFirebaseApp(this.app as firestore.FirebaseApp, path, query);
+  }
+
+  collectionFromFirestore(path: string, query?: QueryFn): GeoFireCollectionRef {
+    return GeoFireCollectionRef.fromFireStore(this.app as  _firestore.Firestore, path, query);
   }
   /**
    * A GeoFirePoint allows you to create geohashes, format data, and calculate relative distance/bearing.
