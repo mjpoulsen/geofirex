@@ -1,7 +1,8 @@
 import { firestore } from './interfaces';
+import * as _firestore from "@google-cloud/firestore";
 import { Observable } from 'rxjs';
 import { GeoFirePoint, Latitude, Longitude } from './point';
-export declare type QueryFn = (ref: firestore.CollectionReference) => firestore.Query;
+export declare type QueryFn = (ref: firestore.CollectionReference | _firestore.CollectionReference) => firestore.Query;
 export interface GeoQueryOptions {
     units: 'km';
 }
@@ -19,7 +20,7 @@ export declare class GeoFireCollectionRef {
     private ref;
     private query;
     private stream;
-    constructor(app: firestore.FirebaseApp, path: string, query?: QueryFn);
+    constructor(app: firestore.FirebaseApp | _firestore.Firestore, path: string, query?: QueryFn);
     /**
      * Return the QuerySnapshot as an observable
      * @returns {Observable<firestore.QuerySnapshot>}
@@ -42,14 +43,14 @@ export declare class GeoFireCollectionRef {
      * @param  {string} id
      * @returns {Promise<void>}
      */
-    delete(id: string): Promise<void>;
+    delete(id: string): Promise<void> | Promise<_firestore.WriteResult>;
     /**
      * Create or update a document in the collection based on the document ID
      * @param  {string} id
      * @param  {any} data
      * @returns {Promise<void>}
      */
-    setDoc(id: string, data: any): Promise<void>;
+    setDoc(id: string, data: any): Promise<void> | Promise<_firestore.WriteResult>;
     /**
      * Create or update a document with GeoFirePoint data
      * @param  {string} id document id
@@ -58,7 +59,7 @@ export declare class GeoFireCollectionRef {
      * @param  {Longitude} longitude
      * @returns {Promise<void>}
      */
-    setPoint(id: string, field: string, latitude: Latitude, longitude: Longitude): Promise<void>;
+    setPoint(id: string, field: string, latitude: Latitude, longitude: Longitude): Promise<void> | Promise<_firestore.WriteResult>;
     changeQuery(query: QueryFn): void;
     private setStream();
     /**

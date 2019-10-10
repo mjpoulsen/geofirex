@@ -1,5 +1,7 @@
 import { Observable, combineLatest } from 'rxjs';
 import { shareReplay, map, first } from 'rxjs/operators';
+import { FirebaseApp } from '@firebase/app-types';
+import { CollectionReference } from '@firebase/firestore-types';
 
 function flip(arr) {
     return [arr[1], arr[0]];
@@ -1458,7 +1460,14 @@ var GeoFireCollectionRef = /** @class */ (function () {
     function GeoFireCollectionRef(app, path, query) {
         this.app = app;
         this.path = path;
-        this.ref = app.firestore().collection(path);
+        if (app instanceof FirebaseApp) {
+            var fbApp = app;
+            this.ref = fbApp.firestore().collection(path);
+        }
+        else {
+            var _App = app;
+            this.ref = _App.collection(path);
+        }
         if (query)
             this.query = query(this.ref);
         this.setStream();
@@ -1485,7 +1494,12 @@ var GeoFireCollectionRef = /** @class */ (function () {
      * @returns {Promise<firestore.DocumentReference>}
      */
     GeoFireCollectionRef.prototype.add = function (data) {
-        return this.ref.add(data);
+        if (this.ref instanceof CollectionReference) {
+            var fbApp = this.ref;
+            return fbApp.add(data);
+        }
+        throw new Error("Add not supported by _firestore.CollectionReference");
+        // return this.ref.add(data);
     };
     /**
      * Delete a document in the collection based on the document ID
@@ -1545,6 +1559,7 @@ var GeoFireCollectionRef = /** @class */ (function () {
             var query = _this.queryPoint(hash, field);
             return createStream(query).pipe(snapToData());
         });
+        var docIds = [];
         var combo = combineLatest.apply(void 0, queries).pipe(map(function (arr) {
             var reduced = arr.reduce(function (acc, cur) { return acc.concat(cur); });
             return reduced
@@ -1561,6 +1576,15 @@ var GeoFireCollectionRef = /** @class */ (function () {
                     bearing: center.bearing(lat, lng)
                 };
                 return __assign({}, val, { queryMetadata: queryMetadata });
+            })
+                .filter(function (val) {
+                if (docIds.indexOf(val) <= 0) {
+                    docIds.push(val);
+                    return true;
+                }
+                else {
+                    return false;
+                }
             })
                 .sort(function (a, b) { return a.queryMetadata.distance - b.queryMetadata.distance; });
         }), shareReplay(1));

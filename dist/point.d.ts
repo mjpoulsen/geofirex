@@ -1,12 +1,13 @@
 import { firestore, Point, Feature } from './interfaces';
+import * as _firestore from "@google-cloud/firestore";
 export declare type Latitude = number;
 export declare type Longitude = number;
 export declare type Coordinates = [Latitude, Longitude];
 export declare class GeoFirePoint {
-    app: firestore.FirebaseApp;
+    app: firestore.FirebaseApp | _firestore.Firestore;
     latitude: number;
     longitude: number;
-    constructor(app: firestore.FirebaseApp, latitude: number, longitude: number);
+    constructor(app: firestore.FirebaseApp | _firestore.Firestore, latitude: number, longitude: number);
     static neighbors(str: string): string[];
     static distance(to: Coordinates, from: Coordinates): any;
     static bearing(start: Coordinates, end: Coordinates): number;
