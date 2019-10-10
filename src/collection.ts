@@ -5,7 +5,6 @@ import { shareReplay, map, first } from 'rxjs/operators';
 import { GeoFirePoint, Latitude, Longitude } from './point';
 import { setPrecsion } from './util';
 import { FeatureCollection, Geometry } from 'geojson';
-import { CollectionReference } from '@firebase/firestore-types';
 
 export type QueryFn = (ref: firestore.CollectionReference | _firestore.CollectionReference) => firestore.Query;
 
@@ -86,13 +85,8 @@ export class GeoFireCollectionRef {
    * @returns {Promise<firestore.DocumentReference>}
    */
   add(data: any): Promise<firestore.DocumentReference> {
-    if (this.ref instanceof CollectionReference) {
-      const fbApp = this.ref as CollectionReference;
-      return fbApp.add(data);
-    }
-
-    throw new Error("Add not supported by _firestore.CollectionReference");
-    // return this.ref.add(data);
+      return (this.ref as firestore.CollectionReference).add(data);
+      // return this.ref.add(data);
   }
   /**
    * Delete a document in the collection based on the document ID
@@ -136,7 +130,7 @@ export class GeoFireCollectionRef {
   }
 
   private setStream() {
-    this.query = this.query || this.ref as CollectionReference;
+    this.query = this.query || this.ref as firestore.CollectionReference;
     this.stream = createStream(this.query || this.ref).pipe(shareReplay(1));
   }
 

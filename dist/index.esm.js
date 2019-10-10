@@ -1,6 +1,5 @@
 import { Observable, combineLatest } from 'rxjs';
 import { shareReplay, map, first } from 'rxjs/operators';
-import { CollectionReference } from '@firebase/firestore-types';
 
 function flip(arr) {
     return [arr[1], arr[0]];
@@ -1491,11 +1490,7 @@ var GeoFireCollectionRef = /** @class */ (function () {
      * @returns {Promise<firestore.DocumentReference>}
      */
     GeoFireCollectionRef.prototype.add = function (data) {
-        if (this.ref instanceof CollectionReference) {
-            var fbApp = this.ref;
-            return fbApp.add(data);
-        }
-        throw new Error("Add not supported by _firestore.CollectionReference");
+        return this.ref.add(data);
         // return this.ref.add(data);
     };
     /**
