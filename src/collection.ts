@@ -145,6 +145,8 @@ export class GeoFireCollectionRef {
       return createStream(query).pipe(snapToData());
     });
 
+    const docIds = [];
+
     const combo = combineLatest(...queries).pipe(
       map(arr => {
         const reduced = arr.reduce((acc, cur) => acc.concat(cur));
@@ -163,6 +165,15 @@ export class GeoFireCollectionRef {
               bearing: center.bearing(lat, lng)
             };
             return { ...val, queryMetadata };
+          })
+
+          .filter(val => {
+            if (docIds.indexOf(val) <= 0) {
+              docIds.push(val);
+              return true;
+            } else {
+              return false;
+            }
           })
 
           .sort((a, b) => a.queryMetadata.distance - b.queryMetadata.distance);
