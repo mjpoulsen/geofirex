@@ -1,3 +1,4 @@
+import { GeoPoint } from '@google-cloud/firestore';
 import { Observable, combineLatest } from 'rxjs';
 import { shareReplay, map, first } from 'rxjs/operators';
 
@@ -1383,10 +1384,11 @@ var GeoFirePoint = /** @class */ (function () {
          * @returns {firestore.GeoPoint} Firestore GeoPoint representation of the point
          */
         get: function () {
-            // throw new Error("testing");
-            var point = new this.app.firestore.GeoPoint(this.latitude, this.longitude);
-            console.log("geoPoint " + point);
-            return point;
+            return new GeoPoint(this.latitude, this.longitude);
+            // return new (this.app as any).firestore.GeoPoint(
+            //   this.latitude,
+            //   this.longitude
+            // ) as firestore.GeoPoint;
         },
         enumerable: true,
         configurable: true
