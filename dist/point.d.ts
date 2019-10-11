@@ -28,7 +28,7 @@ export declare class GeoFirePoint {
     /**
      * @returns {firestore.GeoPoint} Firestore GeoPoint representation of the point
      */
-    readonly geoPoint: firestore.GeoPoint;
+    readonly geoPoint: _firestore.GeoPoint;
     /**
      * @returns {[Latitude, Longitude]}
      */
@@ -37,7 +37,7 @@ export declare class GeoFirePoint {
      * @returns { {geopoint: firestore.GeoPoint, geohash: string} } recommended data format for database
      */
     readonly data: {
-        geopoint: firestore.GeoPoint;
+        geopoint: _firestore.GeoPoint;
         geohash: string;
     };
     /**

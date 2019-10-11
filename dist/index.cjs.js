@@ -2,6 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var _firestore = require('@google-cloud/firestore');
 var rxjs = require('rxjs');
 var operators = require('rxjs/operators');
 
@@ -1387,8 +1388,11 @@ var GeoFirePoint = /** @class */ (function () {
          * @returns {firestore.GeoPoint} Firestore GeoPoint representation of the point
          */
         get: function () {
-            // return new _firestore.GeoPoint(this.latitude, this.longitude);
-            return new this.app.firestore.GeoPoint(this.latitude, this.longitude);
+            return new _firestore.GeoPoint(this.latitude, this.longitude);
+            // return new (this.app as any).firestore.GeoPoint(
+            //   this.latitude,
+            //   this.longitude
+            // ) as firestore.GeoPoint;
         },
         enumerable: true,
         configurable: true
