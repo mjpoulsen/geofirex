@@ -1,4 +1,5 @@
 import { firestore } from './interfaces';
+import * as admin from "firebase-admin";
 import * as _firestore from "@google-cloud/firestore";
 import { Observable, combineLatest } from 'rxjs';
 import { shareReplay, map, first } from 'rxjs/operators';
@@ -24,12 +25,12 @@ export interface GeoQueryDocument {
 }
 
 export class GeoFireCollectionRef {
-  private app: firestore.FirebaseApp | _firestore.Firestore
+  private app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App
   private query: firestore.Query;
   private stream: Observable<firestore.QuerySnapshot>;
 
   constructor(
-    app: firestore.FirebaseApp | _firestore.Firestore,
+    app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App,
     private ref: firestore.CollectionReference | _firestore.CollectionReference,
     private path: string,
     query?: QueryFn
@@ -39,7 +40,7 @@ export class GeoFireCollectionRef {
   }
   
   static fromFirebaseApp(
-    app: firestore.FirebaseApp,
+    app: firestore.FirebaseApp | admin.app.App,
     path: string,
     query?: QueryFn
   ) {

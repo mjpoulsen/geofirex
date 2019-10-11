@@ -1,4 +1,5 @@
 import { firestore } from './interfaces';
+import * as admin from "firebase-admin";
 import * as _firestore from "@google-cloud/firestore";
 import { Observable } from 'rxjs';
 import { GeoFirePoint, Latitude, Longitude } from './point';
@@ -20,8 +21,8 @@ export declare class GeoFireCollectionRef {
     private app;
     private query;
     private stream;
-    constructor(app: firestore.FirebaseApp | _firestore.Firestore, ref: firestore.CollectionReference | _firestore.CollectionReference, path: string, query?: QueryFn);
-    static fromFirebaseApp(app: firestore.FirebaseApp, path: string, query?: QueryFn): GeoFireCollectionRef;
+    constructor(app: firestore.FirebaseApp | _firestore.Firestore | admin.app.App, ref: firestore.CollectionReference | _firestore.CollectionReference, path: string, query?: QueryFn);
+    static fromFirebaseApp(app: firestore.FirebaseApp | admin.app.App, path: string, query?: QueryFn): GeoFireCollectionRef;
     static fromFireStore(app: _firestore.Firestore, path: string, query?: QueryFn): GeoFireCollectionRef;
     /**
      * Return the QuerySnapshot as an observable
