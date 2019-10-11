@@ -64,10 +64,13 @@ export class GeoFirePoint {
    * @returns {firestore.GeoPoint} Firestore GeoPoint representation of the point
    */
   get geoPoint() {
-    return new (this.app as any).firestore.GeoPoint(
+    const point = new (this.app as any).firestore.GeoPoint(
       this.latitude,
       this.longitude
     ) as firestore.GeoPoint;
+
+    console.log(`geoPoint ${point}`);
+    return point;
   }
 
   /**

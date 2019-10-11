@@ -1383,7 +1383,10 @@ var GeoFirePoint = /** @class */ (function () {
          * @returns {firestore.GeoPoint} Firestore GeoPoint representation of the point
          */
         get: function () {
-            return new this.app.firestore.GeoPoint(this.latitude, this.longitude);
+            // throw new Error("testing");
+            var point = new this.app.firestore.GeoPoint(this.latitude, this.longitude);
+            console.log("geoPoint " + point);
+            return point;
         },
         enumerable: true,
         configurable: true
