@@ -2,7 +2,7 @@ import { firestore } from './interfaces';
 import * as admin from "firebase-admin";
 import * as _firestore from "@google-cloud/firestore";
 import { Observable, combineLatest } from 'rxjs';
-import { shareReplay, map, first } from 'rxjs/operators';
+import { shareReplay, map, first, distinct } from 'rxjs/operators';
 import { GeoFirePoint, Latitude, Longitude } from './point';
 import { setPrecsion } from './util';
 import { FeatureCollection, Geometry } from 'geojson';
@@ -159,9 +159,8 @@ export class GeoFireCollectionRef {
       return createStream(query).pipe(snapToData());
     });
 
-    const docIds = [];
-
     const combo = combineLatest(...queries).pipe(
+      distinct(),
       map(arr => {
         const reduced = arr.reduce((acc, cur) => acc.concat(cur));
         return reduced
@@ -179,15 +178,6 @@ export class GeoFireCollectionRef {
               bearing: center.bearing(lat, lng)
             };
             return { ...val, queryMetadata };
-          })
-
-          .filter(val => {
-            if (docIds.indexOf(val) <= 0) {
-              docIds.push(val);
-              return true;
-            } else {
-              return false;
-            }
           })
 
           .sort((a, b) => a.queryMetadata.distance - b.queryMetadata.distance);
