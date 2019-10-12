@@ -1560,13 +1560,20 @@ var GeoFireCollectionRef = /** @class */ (function () {
             var query = _this.queryPoint(hash, field);
             return createStream(query).pipe(snapToData());
         });
-        var combo = rxjs.combineLatest.apply(void 0, queries).pipe(operators.distinct(function (v) { return (v.id ? v.id : null); }), operators.map(function (arr) {
+        var docIds = [];
+        var combo = rxjs.combineLatest.apply(void 0, queries).pipe(operators.map(function (arr) {
             var reduced = arr.reduce(function (acc, cur) { return acc.concat(cur); });
             return reduced
                 .filter(function (val) {
                 var lat = val[field].geopoint.latitude;
                 var lng = val[field].geopoint.longitude;
                 return center.distance(lat, lng) <= radius * 1.02; // buffer for edge distances;
+            })
+                .filter(function (val) {
+                if (docIds.indexOf(val.id) < 0) {
+                    docIds.push(val.id);
+                    return true;
+                }
             })
                 .map(function (val) {
                 var lat = val[field].geopoint.latitude;

@@ -1,6 +1,6 @@
 import { GeoPoint } from '@google-cloud/firestore';
 import { Observable, combineLatest } from 'rxjs';
-import { shareReplay, map, first, distinct } from 'rxjs/operators';
+import { shareReplay, map, first } from 'rxjs/operators';
 
 function flip(arr) {
     return [arr[1], arr[0]];
@@ -1556,13 +1556,20 @@ var GeoFireCollectionRef = /** @class */ (function () {
             var query = _this.queryPoint(hash, field);
             return createStream(query).pipe(snapToData());
         });
-        var combo = combineLatest.apply(void 0, queries).pipe(distinct(function (v) { return (v.id ? v.id : null); }), map(function (arr) {
+        var docIds = [];
+        var combo = combineLatest.apply(void 0, queries).pipe(map(function (arr) {
             var reduced = arr.reduce(function (acc, cur) { return acc.concat(cur); });
             return reduced
                 .filter(function (val) {
                 var lat = val[field].geopoint.latitude;
                 var lng = val[field].geopoint.longitude;
                 return center.distance(lat, lng) <= radius * 1.02; // buffer for edge distances;
+            })
+                .filter(function (val) {
+                if (docIds.indexOf(val.id) < 0) {
+                    docIds.push(val.id);
+                    return true;
+                }
             })
                 .map(function (val) {
                 var lat = val[field].geopoint.latitude;

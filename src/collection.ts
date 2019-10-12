@@ -159,8 +159,9 @@ export class GeoFireCollectionRef {
       return createStream(query).pipe(snapToData());
     });
 
+    const docIds = [];
+
     const combo = combineLatest(...queries).pipe(
-      distinct((v: any) => (v.id ? v.id : null)),
       map(arr => {
         const reduced = arr.reduce((acc, cur) => acc.concat(cur));
         return reduced
@@ -168,6 +169,13 @@ export class GeoFireCollectionRef {
             const lat = val[field].geopoint.latitude;
             const lng = val[field].geopoint.longitude;
             return center.distance(lat, lng) <= radius * 1.02; // buffer for edge distances;
+          })
+
+          .filter(val => {
+            if (docIds.indexOf(val.id) < 0) {
+              docIds.push(val.id);
+              return true;
+            }
           })
 
           .map(val => {
