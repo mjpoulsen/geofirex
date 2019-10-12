@@ -1558,9 +1558,9 @@ var GeoFireCollectionRef = /** @class */ (function () {
         var area = GeoFirePoint.neighbors(centerHash).concat(centerHash);
         var queries = area.map(function (hash) {
             var query = _this.queryPoint(hash, field);
-            return createStream(query).pipe(operators.distinct(function (v) { return (v.id ? v.id : null); }), snapToData());
+            return createStream(query).pipe(snapToData());
         });
-        var combo = rxjs.combineLatest.apply(void 0, queries).pipe(operators.map(function (arr) {
+        var combo = rxjs.combineLatest.apply(void 0, queries).pipe(operators.distinct(function (v) { return (v.id ? v.id : null); }), operators.map(function (arr) {
             var reduced = arr.reduce(function (acc, cur) { return acc.concat(cur); });
             return reduced
                 .filter(function (val) {
