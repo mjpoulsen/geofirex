@@ -156,11 +156,10 @@ export class GeoFireCollectionRef {
 
     const queries = area.map(hash => {
       const query = this.queryPoint(hash, field);
-      return createStream(query).pipe(snapToData());
+      return createStream(query).pipe(distinct(v => (v.id ? v.id : null)), snapToData());
     });
 
     const combo = combineLatest(...queries).pipe(
-      distinct(),
       map(arr => {
         const reduced = arr.reduce((acc, cur) => acc.concat(cur));
         return reduced
