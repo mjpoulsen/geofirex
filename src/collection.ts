@@ -2,7 +2,7 @@ import { firestore } from './interfaces';
 import * as admin from "firebase-admin";
 import * as _firestore from "@google-cloud/firestore";
 import { Observable, combineLatest } from 'rxjs';
-import { shareReplay, map, first, distinct } from 'rxjs/operators';
+import { shareReplay, map, first } from 'rxjs/operators';
 import { GeoFirePoint, Latitude, Longitude } from './point';
 import { setPrecsion } from './util';
 import { FeatureCollection, Geometry } from 'geojson';
